@@ -1,0 +1,103 @@
+name: Diff
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Fetch base
+        uses: actions/checkout@v4
+        with:
+          path: base
+          ref: ${{ github.event.pull_request.base.ref }}
+      - run: git status
+      # - name: Checkout base
+      #   working-directory: base
+      #   run: git checkout HEAD^
+
+      # - name: Checkout head
+      #   uses: actions/checkout@v4
+      #   with:
+      #     path: head
+
+      # - name: Install dyff
+      #   run: |
+      #     set -o pipefail
+      #     curl -fsL https://git.io/JYfAY | bash
+
+      # - name: Build base
+      #   working-directory: ./base
+      #   run: ../head/.scripts/build.sh
+      # - name: Build head
+      #   working-directory: ./head
+      #   run: .scripts/build.sh
+
+      # - name: Diff
+      #   id: diff
+      #   run: |
+      #     # With console colors
+      #     ./head/.scripts/diff.sh \
+      #       base/.built \
+      #       head/.built \
+      #       --omit-header
+
+      #     # Plaintext
+      #     ./head/.scripts/diff.sh \
+      #       base/.built \
+      #       head/.built \
+      #       --omit-header --output github \
+      #       > diff.txt
+
+      #     DIFF=$(cat diff.txt)
+      #     DIFF_LENGTH=${#DIFF}
+
+      #     echo 'diff<<EOF' >> $GITHUB_OUTPUT
+      #     cat diff.txt >> $GITHUB_OUTPUT
+      #     echo 'EOF' >> $GITHUB_OUTPUT
+      #     echo "diff_length=$DIFF_LENGTH" >> $GITHUB_OUTPUT
+
+      #     echo '### Diff' >> $GITHUB_STEP_SUMMARY
+      #     echo '```diff' >> $GITHUB_STEP_SUMMARY
+      #     cat diff.txt >> $GITHUB_STEP_SUMMARY
+      #     echo '```' >> $GITHUB_STEP_SUMMARY
+
+      # - if: ${{ steps.diff.outputs.diff != '' && steps.diff.outputs.diff_length > 50000 }}
+      #   name: Add comment
+      #   uses: mshick/add-pr-comment@v2
+      #   with:
+      #     message-id: "${{ github.event.pull_request.number }}"
+      #     message-failure: Diff was not successful
+      #     message: |
+      #       ### Diff
+      #       Diff was too long (> 50k chars) to include in PR comment.
+      #       Please check actions summary for more info.
+      #       ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # - if: ${{ steps.diff.outputs.diff != '' && steps.diff.outputs.diff_length <= 50000 }}
+      #   name: Add comment
+      #   uses: mshick/add-pr-comment@v2
+      #   with:
+      #     message-id: "${{ github.event.pull_request.number }}"
+      #     message-failure: Diff was not successful
+      #     message: |
+      #       ### Diff
+      #       ```diff
+      #       ${{ steps.diff.outputs.diff }}
+      #       ```
+      # - if: ${{ steps.diff.outputs.diff == '' }}
+      #   name: Add comment
+      #   uses: mshick/add-pr-comment@v2
+      #   with:
+      #     message-id: "${{ github.event.pull_request.number }}"
+      #     message-failure: Diff was not successful
+      #     message: |
+      #       ### Diff
+      #       No diff detected!
