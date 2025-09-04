@@ -20,6 +20,7 @@ jobs:
           path: base
           ref: ${{ github.event.pull_request.base.ref }}
       - run: git status
+        working-directory: base
       # - name: Checkout base
       #   working-directory: base
       #   run: git checkout HEAD^
