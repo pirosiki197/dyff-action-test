@@ -15,31 +15,25 @@ jobs:
       pull-requests: write
     steps:
       - name: Fetch base
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: base
           ref: ${{ github.event.pull_request.base.ref }}
-      - run: git status
-      # - name: Checkout base
-      #   working-directory: base
-      #   run: git checkout HEAD^
+      - name: Checkout head
+        uses: actions/checkout@v5
+        with:
+          path: head
+      - name: Install dyff
+        run: |
+          set -o pipefail
+          curl -fsL https://git.io/JYfAY | bash
 
-      # - name: Checkout head
-      #   uses: actions/checkout@v4
-      #   with:
-      #     path: head
-
-      # - name: Install dyff
-      #   run: |
-      #     set -o pipefail
-      #     curl -fsL https://git.io/JYfAY | bash
-
-      # - name: Build base
-      #   working-directory: ./base
-      #   run: ../head/.scripts/build.sh
-      # - name: Build head
-      #   working-directory: ./head
-      #   run: .scripts/build.sh
+      - name: Build base
+        working-directory: ./base
+        run: ../head/.scripts/build.sh
+      - name: Build head
+        working-directory: ./head
+        run: .scripts/build.sh
 
       # - name: Diff
       #   id: diff
