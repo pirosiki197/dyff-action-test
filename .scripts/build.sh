@@ -2,4 +2,8 @@
 
 set -euo pipefail
 
-echo "hello, world"
+mkdir -p .built
+
+for directory in overlay/*; do
+    echo "Building $directory..."
+    kustomize build "$directory" > .built/$(echo "$directory").yaml
