@@ -2,10 +2,9 @@
 
 set -euo pipefail
 
-mkdir -p .built
-
+mkdir -p .built/built
+ls -l overlay
 for directory in overlay/*; do
     echo "Building $directory..."
-    mkdir -p .built/built
     kustomize build "$directory" > .built/$(echo "$directory").yaml
 done
